@@ -5,6 +5,7 @@ import csv
 from random import randint
 from configparser import ConfigParser
 import asyncio
+import re
 
 # authenticate using cookies
 client = Client(language='en')
@@ -13,11 +14,11 @@ client.load_cookies('cookies.json')
 # data storage
 with open('tweets.csv', 'w', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(['Tweet_count', 'Username', 'Text',
+    writer.writerow(['Tweet_count', 'Tweet ID', 'User Name', 'User ID', 'Text', "Link",
                     'Created_at', 'Likes', 'Retweets'])
 
 # get tweets
-MINIMUM_TWEETS = 30
+MINIMUM_TWEETS = 5
 PRODUCT = 'TOP'
 QUERY = 'ELON'
 
@@ -42,7 +43,16 @@ async def get_tweets():
 
             for tweet in tweets:
                 tweet_count += 1
-                tweet_data = [tweet_count, tweet.user.name, tweet.text,
+                # username clean
+                username = re.sub(r'[^\w\s]', '',
+                                  tweet.user.name).strip()
+                # url clean
+                url_match = re.search(r'https?://\S+', tweet.text)
+                url = url_match.group() if url_match else None
+                text_clean1 = re.sub(r'https?://\S+', '', tweet.text).strip()
+                text_cleaned = re.sub(r'[^\w\s]', '', text_clean1)
+                print(f'{tweet.reply_count}')
+                tweet_data = [tweet_count, tweet.id, username, tweet.user.id, text_cleaned, url,
                               tweet.created_at, tweet.favorite_count, tweet.retweet_count]
                 with open('tweets.csv', 'a', newline='') as file:
                     writer = csv.writer(file)

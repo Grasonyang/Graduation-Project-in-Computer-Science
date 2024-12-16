@@ -1,0 +1,13 @@
+query MyQuery {
+  GetArticle(id:"ojdov0xq1ecr"){
+    id
+    text
+    articleReplies{
+      reply{
+        id
+        text
+        type
+      }
+    }
+  }
+}

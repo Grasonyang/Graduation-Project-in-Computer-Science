@@ -2,6 +2,7 @@ query MyQuery {
   ListArticles{
     edges{
       node{
+        id
 				text
         articleReplies{
           reply{

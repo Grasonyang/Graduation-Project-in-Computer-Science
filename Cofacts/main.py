@@ -24,7 +24,7 @@ def getArticles():
       }
     }
     """
-    variables = {"first": 100}
+    variables = {"first": 10000}
 
     response = requests.post(
         url,
@@ -72,9 +72,9 @@ def dealTrueorFalse(articleReplies):
             times["OPINIONATED"] += 1
             text["OPINIONATED"].append(reply["reply"]["text"])
     if times["RUMOR"] > times["NOT_RUMOR"]:
-        return "False", text["RUMOR"]
+        return "Not_Rumor", text["RUMOR"]
     elif times["NOT_RUMOR"] > times["RUMOR"]:
-        return "True", text["NOT_RUMOR"]
+        return "Rumor", text["NOT_RUMOR"]
     else:
         return "Fuzzy", text["OPINIONATED"]
 
@@ -119,6 +119,17 @@ def store_to_db(title, summary, content, url, trueorfalse, accordingto):
     cursor.execute(query, (title, summary, content, url,
                    trueorfalse, ', '.join(accordingto)))
 
+    article_id = cursor.lastrowid
+    fromwhere = "Cofacts"
+    query_article_type = """
+    INSERT INTO article_type (article_id, fromwhere)
+    VALUES (%s, %s)
+    """
+    try:
+        cursor.execute(query_article_type, (article_id, fromwhere))
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        conn.rollback()
     conn.commit()
     cursor.close()
     conn.close()

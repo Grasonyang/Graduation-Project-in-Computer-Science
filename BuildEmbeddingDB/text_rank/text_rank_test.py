@@ -1,4 +1,4 @@
-from TextRank import TextRank
+from text_rank import TextRank
 import jieba
 
 # 準備中文文本

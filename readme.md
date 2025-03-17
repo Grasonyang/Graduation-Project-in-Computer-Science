@@ -20,4 +20,4 @@
     - 搜尋結果先分析
         - use AI API
     - Google Search Result
-        - 域值設定、結果紀錄ㄐ
+        - 域值設定、結果紀錄

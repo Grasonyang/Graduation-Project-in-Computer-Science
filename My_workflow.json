@@ -1,0 +1,394 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "allowFileUploads": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -840,
+        -80
+      ],
+      "id": "9f7c85ee-bcb8-401d-a2e2-87ba228b64cf",
+      "name": "When chat message received",
+      "webhookId": "27a038cc-9f67-46b9-9807-2b4e0bde39da"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        180
+      ],
+      "id": "342f30b6-4d19-41d0-b628-d473b57cbc90",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AAXM30W3OSwxzVmp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        200
+      ],
+      "id": "474f8021-51bc-4cf1-8c1d-445460fc56a3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        140
+      ],
+      "id": "2a364037-06a2-42a0-a6f8-214dffbea880",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AAXM30W3OSwxzVmp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "hl": "zh-tw"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        60,
+        300
+      ],
+      "id": "7a8cd6a8-3a49-4e70-bc5f-01f6b29a5e23",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "6Gr6jkhoPMAfbS7D",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "語言: 繁體中文\n角色: 你是一個工具使用者\n工作: 根據輸入文字中的\"Google 搜尋查詢詞\"使用Tool蒐集資料\n輸出: 將搜尋結果統整"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "5a75b0a4-5389-43e8-b429-efcc57656632",
+      "name": "AI Agent 搜尋"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=請以繁體中文分析以下問題: \n {{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "您是一位協助進行事實查核的研究員。基於以下從新聞文章中提取出的關鍵主張、實體、數據和潛在疑點，請生成一系列精確且多樣化的 Google Search 查詢詞。這些查詢詞應用於查找可靠來源（如：官方機構、知名新聞媒體、學術研究）的資訊，以驗證或反駁原始文章的內容。\n\n**要求：**\n1.  針對每個核心主張生成至少一個驗證性查詢。\n2.  考慮使用關鍵實體、日期、數字進行組合查詢。\n3.  若有可疑跡象，嘗試生成旨在調查這些疑點的查詢。\n4.  查詢應盡量簡潔、明確，並使用引號 \"\" 精確匹配關鍵片語 (若適用)。\n5.  請提供至少 3-5 個不同的查詢詞，涵蓋不同查證角度。\n\n**先前步驟分析出的關鍵資訊 (來自步驟 2 的輸出)：**\n```json\n{\n  \"core_claims\": [\n    \"[主張 1]\",\n    \"[主張 2]\",\n    ...\n  ],\n  \"key_entities\": {\n    \"persons\": [\"[人物 1]\", \"[人物 2]\", ...],\n    \"organizations\": [\"[組織 1]\", \"[組織 2]\", ...],\n    \"locations\": [\"[地點 1]\", \"[地點 2]\", ...]\n  },\n  \"key_data\": {\n    \"dates\": [\"[日期 1]\", \"[日期 2]\", ...],\n    \"numbers_stats\": [\"[數字/統計 1]\", \"[數字/統計 2]\", ...]\n  },\n  \"potential_suspicious_signs\": [\n    {\n      \"sign\": \"[可疑跡象類型 1]\",\n      \"evidence\": \"[原文證據 1]\"\n    },\n    ...\n  ]\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -540,
+        -80
+      ],
+      "id": "cc86245a-08b2-4161-8add-bab5689b3802",
+      "name": "AI Agent 用戶輸入分析"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=依照輸入分析 {{ $('AI Agent 用戶輸入分析').item.json.output }} 與搜尋結果統整{{ $json.output }}，分析正確性，輸出請遵照以下要求\n```json\n{\n  \"veracity_judgment\": \"真實 | 虛假 | 部分真實 | 未經證實\",\n  \"explanation\": \"對做出此判斷的總體理由進行簡要說明，解釋證據如何導向這個結論，並指出關鍵的考量因素。\",\n  \"supporting_evidence_summary\": [\n    {\n      \"claim\": \"被支持的原始文章主張\",\n      \"evidence\": \"分析總結中的關鍵支持證據簡述 (含來源可信度評估)\",\n      \"strength\": \"證據強度評估 (強/中/弱)\"\n    },\n    ...\n  ],\n  \"contradicting_evidence_summary\": [\n    {\n      \"claim\": \"被反駁的原始文章主張\",\n      \"evidence\": \"分析總結中的關鍵反駁證據簡述 (含來源可信度評估)\",\n      \"strength\": \"證據強度評估 (強/中/弱)\"\n    },\n    ...\n  ],\n  \"unverified_points\": [\n    \"列出無法被可靠來源證實或證偽的關鍵點/主張\"\n  ]\n}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "請擔任一位經驗豐富的事實查核編輯。您的任務是根據以下提供的「分析結果總結」，綜合評估原始新聞文章的整體真實性。\n\n**評估標準：**\n1.  **證據權重：** 衡量支持和反駁原始文章主張的證據強度。考慮證據來源的可信度（例如：官方報告 vs. 匿名部落格）、發布時間的相關性、以及多個獨立來源的一致性。\n2.  **主張覆蓋：** 評估關鍵主張在多大程度上被證實或證偽。是否存在未經證實的核心主張？\n3.  **整體一致性：** 判斷原始文章的敘述與可靠外部資訊的總體一致性。\n\n**請提供一個明確的真實性判斷，選項限制為以下四種之一：**\n* **真實 (True):** 大部分核心主張得到可靠來源的強有力支持。\n* **虛假 (False):** 大部分核心主張被可靠來源明確反駁。\n* **部分真實 (Partly True):** 部分核心主張得到證實，但其他部分被反駁或缺乏足夠證據。\n* **未經證實 (Unverified):** 缺乏足夠的可靠資訊來對核心主張做出明確判斷。\n\n**請嚴格按照以下 JSON 格式輸出您的判斷和解釋：**\n\n```json\n{\n  \"veracity_judgment\": \"真實 | 虛假 | 部分真實 | 未經證實\",\n  \"explanation\": \"對做出此判斷的總體理由進行簡要說明，解釋證據如何導向這個結論，並指出關鍵的考量因素。\",\n  \"supporting_evidence_summary\": [\n    {\n      \"claim\": \"被支持的原始文章主張\",\n      \"evidence\": \"分析總結中的關鍵支持證據簡述 (含來源可信度評估)\",\n      \"strength\": \"證據強度評估 (強/中/弱)\"\n    },\n    ...\n  ],\n  \"contradicting_evidence_summary\": [\n    {\n      \"claim\": \"被反駁的原始文章主張\",\n      \"evidence\": \"分析總結中的關鍵反駁證據簡述 (含來源可信度評估)\",\n      \"strength\": \"證據強度評估 (強/中/弱)\"\n    },\n    ...\n  ],\n  \"unverified_points\": [\n    \"列出無法被可靠來源證實或證偽的關鍵點/主張\"\n  ]\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        360,
+        -80
+      ],
+      "id": "c8428940-f4dd-4631-bd6f-39fa6de2dd9b",
+      "name": "AI Agent 最終判斷"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-preview-04-17",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        340,
+        140
+      ],
+      "id": "da9f4ecc-d507-4f0c-9bbe-2226470ed053",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AAXM30W3OSwxzVmp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        420,
+        140
+      ],
+      "id": "9350b04d-ebb6-4bc5-9c1d-184561e6d9d2",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        140
+      ],
+      "id": "0cc2e2a0-e319-4223-afc9-f86a27e17a79",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"veracity_judgment\": \"真實 | 虛假 | 部分真實 | 未經證實\",\n  \"explanation\": \"對做出此判斷的總體理由進行簡要說明，解釋證據如何導向這個結論，並指出關鍵的考量因素。\",\n  \"supporting_evidence_summary\": [\n    {\n      \"claim\": \"被支持的原始文章主張\",\n      \"evidence\": \"分析總結中的關鍵支持證據簡述 (含來源可信度評估)\",\n      \"strength\": \"證據強度評估 (強/中/弱)\"\n    }\n  ],\n  \"contradicting_evidence_summary\": [\n    {\n      \"claim\": \"被反駁的原始文章主張\",\n      \"evidence\": \"分析總結中的關鍵反駁證據簡述 (含來源可信度評估)\",\n      \"strength\": \"證據強度評估 (強/中/弱)\"\n    }\n  ],\n  \"unverified_points\": [\n    \"列出無法被可靠來源證實或證偽的關鍵點/主張\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        320
+      ],
+      "id": "83800933-9cfc-4d7c-94e6-4ec9f56c4032",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {
+          "prompt": "Instructions:\n--------------\n{instructions}\n--------------\nCompletion:\n--------------\n{completion}\n--------------\n\nAbove, the Completion did not satisfy the constraints given in the Instructions.\nError:\n--------------\n{error}\n--------------\n\nPlease try again. Please only respond with an answer that satisfies the constraints laid out in the Instructions:"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        640,
+        120
+      ],
+      "id": "0b12d3d1-69b8-4138-8bc2-902a4a64d56d",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        540,
+        340
+      ],
+      "id": "4a96f69e-7bb5-4c67-a6d7-0eb9493960f1",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AAXM30W3OSwxzVmp",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 用戶輸入分析",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent 用戶輸入分析",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent 用戶輸入分析",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent 搜尋",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "AI Agent 用戶輸入分析": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 搜尋",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent 搜尋": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 最終判斷",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent 最終判斷",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent 最終判斷",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent 搜尋",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent 最終判斷",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62643104-f325-4926-9075-8e135be99c84",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3727be631a25196e7a7ae41f5f6df973455c12428c9df734ab9f6949821dd211"
+  },
+  "id": "c4AoVs5XgOSBpYIx",
+  "tags": []
+}

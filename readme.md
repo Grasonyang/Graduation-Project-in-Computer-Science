@@ -1,7 +1,3 @@
-## 資工專題
-### branch
-- main
-- Spider 爬取X.com資料
-- BuildEmbeddingDB 建構向量資料庫
-- FineTuneEmbedding 微調像量化模型
-- BuildAgenticFlowADK 使用ADK建構辨識工作流
+### 
+#### 進度: 未完成
+- (參考文件)[https://docs.google.com/document/d/1k26BEK8tVsIYw7MpZTQHDFpf7zrPxbVexRYIPV5ronM/edit?usp=sharing]
